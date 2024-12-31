@@ -4,16 +4,219 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Classifier</title>
-    <link id="css" rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .drop-zone {
+            width: 200px;
+            height: 200px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: #666;
+            border: 2px dashed #0087F7;
+            border-radius: 10px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone:hover {
+            background-color: rgba(0, 135, 247, 0.1);
+        }
+
+        .drop-zone.dragover {
+            background-color: rgba(0, 135, 247, 0.2);
+            border-style: solid;
+        }
+
+        .drop-zone__input {
+            display: none;
+        }
+
+        .drop-zone__thumb {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #cccccc;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        #prediction-result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
     <h1>Image Classifier</h1>
     <form id="image-form">
-        <input type="file" id="image-input" accept="image/*" required>
+        <div class="drop-zone">
+            <span class="drop-zone__prompt">Drop file here or click to upload</span>
+            <input type="file" id="image-input" name="image" class="drop-zone__input" accept="image/*">
+        </div>
         <button type="submit">Classify Image</button>
     </form>
-    <img id="image-preview" alt="Uploaded Image Preview" style="display:none; max-width: 300px; margin-top: 20px;"/>
     <div id="prediction-result"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll(".drop-zone").forEach(dropZone => {
+                const input = dropZone.querySelector(".drop-zone__input");
+
+                dropZone.addEventListener("click", () => {
+                    input.click();
+                });
+
+                input.addEventListener("change", () => {
+                    if (input.files.length) {
+                        updateThumbnail(dropZone, input.files[0]);
+                    }
+                });
+
+                dropZone.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add("dragover");
+                });
+
+                ["dragleave", "dragend"].forEach(type => {
+                    dropZone.addEventListener(type, (e) => {
+                        dropZone.classList.remove("dragover");
+                    });
+                });
+
+                dropZone.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove("dragover");
+
+                    if (e.dataTransfer.files.length) {
+                        input.files = e.dataTransfer.files;
+                        updateThumbnail(dropZone, e.dataTransfer.files[0]);
+                    }
+                });
+            });
+
+            function updateThumbnail(dropZone, file) {
+                let thumbnailElement = dropZone.querySelector(".drop-zone__thumb");
+                const prompt = dropZone.querySelector(".drop-zone__prompt");
+
+                if (prompt) {
+                    prompt.remove();
+                }
+
+                if (!thumbnailElement) {
+                    thumbnailElement = document.createElement("div");
+                    thumbnailElement.classList.add("drop-zone__thumb");
+                    dropZone.appendChild(thumbnailElement);
+                }
+
+                if (file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement("canvas");
+                            const ctx = canvas.getContext("2d");
+                            canvas.width = 192;
+                            canvas.height = 192;
+
+                            ctx.drawImage(img, 0, 0, 192, 192);
+
+                            const resizedImageData = canvas.toDataURL("image/png");
+
+                            thumbnailElement.style.backgroundImage = `url('${resizedImageData}')`;
+                            thumbnailElement.style.width = "192px";
+                            thumbnailElement.style.height = "192px";
+                        };
+                        img.src = reader.result;
+                    };
+                }
+            }
+
+            document.getElementById("image-form").addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const fileInput = document.getElementById("image-input");
+                const resultDiv = document.getElementById("prediction-result");
+
+                if (!fileInput.files.length) {
+                    resultDiv.textContent = "Please select an image!";
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+
+                const formData = new FormData();
+                formData.append("image", file);
+
+                try {
+                    const response = await fetch("http://localhost:5000/classify/", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to classify the image. Please try again.");
+                    }
+
+                    const data = await response.json();
+                    resultDiv.textContent = `Prediction: ${data.prediction}`;
+                } catch (error) {
+                    console.error(error);
+                    resultDiv.textContent = "Error: Unable to classify the image.";
+                }
+            });
+        });
+    </script>
 </body>
-<script src="./app.js" type="module"></script>
 </html>
