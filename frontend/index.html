@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link id="css" rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Image Classifier</h1>
+    <form id="image-form">
+        <input type="file" id="image-input" accept="image/*" required>
+        <button type="submit">Classify Image</button>
+    </form>
+    <img id="image-preview" alt="Uploaded Image Preview" style="display:none; max-width: 300px; margin-top: 20px;"/>
+    <div id="prediction-result"></div>
+</body>
+<script src="./app.js" type="module"></script>
+</html>
