@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,6 +96,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Image Classifier</h1>
     <form id="image-form">
@@ -105,9 +107,155 @@
         <button type="submit">Classify Image</button>
     </form>
     <div id="prediction-result"></div>
+    <h3>Available Classifications:</h3>
+    <ul>
+        <table>
+            <tr>
+                <td>apple</td>
+                <td>aquarium fish</td>
+                <td>baby</td>
+                <td>bear</td>
+                <td>beaver</td>
+            </tr>
+            <tr>
+                <td>bed</td>
+                <td>bee</td>
+                <td>beetle</td>
+                <td>bicycle</td>
+                <td>bottle</td>
+            </tr>
+            <tr>
+                <td>bowl</td>
+                <td>boy</td>
+                <td>bridge</td>
+                <td>bus</td>
+                <td>butterfly</td>
+            </tr>
+            <tr>
+                <td>camel</td>
+                <td>can</td>
+                <td>castle</td>
+                <td>caterpillar</td>
+                <td>cattle</td>
+            </tr>
+            <tr>
+                <td>chair</td>
+                <td>chimpanzee</td>
+                <td>clock</td>
+                <td>cloud</td>
+                <td>cockroach</td>
+            </tr>
+            <tr>
+                <td>couch</td>
+                <td>crab</td>
+                <td>crocodile</td>
+                <td>cup</td>
+                <td>dinosaur</td>
+            </tr>
+            <tr>
+                <td>dolphin</td>
+                <td>elephant</td>
+                <td>flatfish</td>
+                <td>forest</td>
+                <td>fox</td>
+            </tr>
+            <tr>
+                <td>girl</td>
+                <td>hamster</td>
+                <td>house</td>
+                <td>kangaroo</td>
+                <td>keyboard</td>
+            </tr>
+            <tr>
+                <td>lamp</td>
+                <td>lawn mower</td>
+                <td>leopard</td>
+                <td>lion</td>
+                <td>lizard</td>
+            </tr>
+            <tr>
+                <td>lobster</td>
+                <td>man</td>
+                <td>maple tree</td>
+                <td>motorcycle</td>
+                <td>mountain</td>
+            </tr>
+            <tr>
+                <td>mouse</td>
+                <td>mushroom</td>
+                <td>oak tree</td>
+                <td>orange</td>
+                <td>orchid</td>
+            </tr>
+            <tr>
+                <td>otter</td>
+                <td>palm tree</td>
+                <td>pear</td>
+                <td>pickup truck</td>
+                <td>pine tree</td>
+            </tr>
+            <tr>
+                <td>plain</td>
+                <td>plate</td>
+                <td>poppy</td>
+                <td>porcupine</td>
+                <td>possum</td>
+            </tr>
+            <tr>
+                <td>rabbit</td>
+                <td>raccoon</td>
+                <td>ray</td>
+                <td>road</td>
+                <td>rocket</td>
+            </tr>
+            <tr>
+                <td>rose</td>
+                <td>sea</td>
+                <td>seal</td>
+                <td>shark</td>
+                <td>shrew</td>
+            </tr>
+            <tr>
+                <td>skunk</td>
+                <td>skyscraper</td>
+                <td>snail</td>
+                <td>snake</td>
+                <td>spider</td>
+            </tr>
+            <tr>
+                <td>squirrel</td>
+                <td>streetcar</td>
+                <td>sunflower</td>
+                <td>sweet pepper</td>
+                <td>table</td>
+            </tr>
+            <tr>
+                <td>tank</td>
+                <td>telephone</td>
+                <td>television</td>
+                <td>tiger</td>
+                <td>tractor</td>
+            </tr>
+            <tr>
+                <td>train</td>
+                <td>trout</td>
+                <td>tulip</td>
+                <td>turtle</td>
+                <td>wardrobe</td>
+            </tr>
+            <tr>
+                <td>whale</td>
+                <td>willow tree</td>
+                <td>wolf</td>
+                <td>woman</td>
+                <td>worm</td>
+            </tr>
+        </table>
+    </ul>
+    
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll(".drop-zone").forEach(dropZone => {
                 const input = dropZone.querySelector(".drop-zone__input");
 
@@ -137,8 +285,12 @@
                     dropZone.classList.remove("dragover");
 
                     if (e.dataTransfer.files.length) {
-                        input.files = e.dataTransfer.files;
-                        updateThumbnail(dropZone, e.dataTransfer.files[0]);
+                        const droppedFile = e.dataTransfer.files[0];
+                        updateThumbnail(dropZone, droppedFile);
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(droppedFile);
+                        input.files = dataTransfer.files;
                     }
                 });
             });
@@ -219,4 +371,5 @@
         });
     </script>
 </body>
+
 </html>

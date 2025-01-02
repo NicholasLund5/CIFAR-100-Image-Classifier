@@ -104,23 +104,20 @@ app.add_middleware(
 )
 
 
-# Load the CIFAR-100 Model
 @app.on_event("startup")
 def load_model():
     global model, class_names, device
     model_path = "./CIFAR100_model.pth"
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # Load CIFAR-100 dataset to extract class names
     train_data = datasets.CIFAR100(
         root="data",
         train=True,
-        download=True,  # Downloads the dataset if not already downloaded
+        download=True,  
         transform=None
     )
-    class_names = train_data.classes  # Use the classes attribute from CIFAR100 dataset
+    class_names = train_data.classes 
 
-    # Load the model
     model = CIFAR100Model(input_shape=3, width_multiplier=10, num_classes=len(class_names)).to(device)
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found at {model_path}")
@@ -128,30 +125,27 @@ def load_model():
     model.eval()
 
 
-# Image Transform
 transform = transforms.Compose([
-    transforms.Resize((32, 32)),  # CIFAR-100 images are 32x32
+    transforms.Resize((32, 32)),  
     transforms.ToTensor(),
     transforms.Normalize((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762)),
 ])
 
 
-# Classification Endpoint
 @app.post("/classify/")
 async def classify_image(image: UploadFile = File(...)):
     try:
-        # Read the image
+        print(f"File received: {image.filename}")
         img = Image.open(image.file).convert("RGB")
         
-        # Apply transforms
         img_tensor = transform(img).unsqueeze(0).to(device)
         
-        # Predict
         with torch.no_grad():
             outputs = model(img_tensor)
             _, predicted_class = torch.max(outputs, 1)
-            prediction = class_names[predicted_class.item()]  # Map to class name
-        
+            prediction = class_names[predicted_class.item()]  #
+            prediction = prediction.replace("_", " ").capitalize()
+
         return JSONResponse(content={"prediction": prediction})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
