@@ -134,15 +134,9 @@ async def classify_image(image: UploadFile = File(...)):
 
 The frontend is a simple HTML+CSS+JavaScript application that allows users to upload or drag-and-drop an image for classification. It communicates with the FastAPI backend to obtain predictions.
 
-### Key Features:
-- Drag-and-drop support.
-- Real-time thumbnail generation.
-- Error handling for invalid file types or server issues.
-
 ### Example Interaction:
 1. User drops an image into the drop zone.
-2. The image is displayed as a thumbnail.
-3. Upon submission, the image is sent to the backend, and the predicted class is displayed.
+2. Upon submission, the image is sent to the backend, and the predicted class is displayed.
 
 ---
 
@@ -161,12 +155,6 @@ The frontend is a simple HTML+CSS+JavaScript application that allows users to up
    ```bash
    uvicorn main:app --host 0.0.0.0 --port 5000
    ```
-4. Open the `index.html` file in your browser.
 5. Upload an image to classify.
 
 ---
-
-## References
-1. **Squeeze-and-Excitation Networks**: Jie Hu, Li Shen, Gang Sun (2018)
-2. **Residual Networks**: Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun (2016)
-3. **CIFAR-100 Dataset**: https://www.cs.toronto.edu/~kriz/cifar.html
